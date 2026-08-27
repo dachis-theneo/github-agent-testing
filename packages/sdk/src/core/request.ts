@@ -44,7 +44,8 @@ function getQueryString(params: Record<string, any>): string {
 
 function getUrl(options: ApiRequestOptions): string {
     const path = options.path.replace(/[:]/g, '_');
-    const url = `${OpenAPI.BASE}${path}`;
+    const base = OpenAPI.BASE.replace(/\/+$/, '');
+    const url = `${base}${path}`;
 
     if (options.query) {
         return `${url}${getQueryString(options.query)}`;
@@ -145,7 +146,7 @@ async function getResponseBody(response: Response): Promise<any> {
     try {
         const contentType = response.headers.get('Content-Type');
         if (contentType) {
-            const isJSON = contentType.toLowerCase().startsWith('application/json');
+            const isJSON = /^application\/(?:.*\+)?json\b/.test(contentType.toLowerCase());
             if (isJSON) {
                 return await response.json();
             } else {
